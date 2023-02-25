@@ -1,6 +1,6 @@
 # Assignment 02
 
-**Due: 29 April 2023**
+**Due: 29 March 2023**
 
 This assignment will work a bit differently than assignment #1. To complete this assigment you will need to do the following:
 1.  Fork this repository to your own account.
