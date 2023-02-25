@@ -1,45 +1,150 @@
-# Part2
+# Assignment 02
+
+**Due: 29 April 2023**
+
+This assignment will work a bit differently than assignment #1. To complete this assigment you will need to do the following:
+1.  Fork this repository to your own account.
+2.  Clone your fork to your local machine.
+3.  Complete the assignment according to the instructions below.
+4.  Push your changes to your fork.
+5.  Submit a pull request to the original repository. Opening your pull request will be equivalent to you submitting your assignment. You will only need to open one pull request for this assignment. **If you make additional changes to your fork, they will automatically show up in the pull request you already opened.** Your pull request should have your name in the title (e.g. `Assignment 02 - Mjumbe Poe`).
+
+----------------
+
+## Instructions
 
 Write a query to answer each of the questions below.
-* Your queries should produce results in the format specified.
+* Your queries should produce results in the format specified by each question.
 * Write your query in a SQL file corresponding to the question number (e.g. a file named _query06.sql_ for the answer to question #6).
-* Each SQL file should contain a single `SELECT` query.
+* Each SQL file should contain a single query that retrieves data from the database (i.e. a `SELECT` query).
 * Any SQL that does things other than retrieve data (e.g. SQL that creates indexes or update columns) should be in the _db_structure.sql_ file.
 * Some questions include a request for you to discuss your methods. Update this README file with your answers in the appropriate place.
 
-There are several datasets that are prescribed for you to use in this part. Your datasets should be named:
-  * `septa.bus_stops` ([SEPTA GTFS](http://www3.septa.org/developer/))
-  * `septa.bus_shapes` ([SEPTA GTFS](http://www3.septa.org/developer/))
-  * `septa.rail_stops` ([SEPTA GTFS](http://www3.septa.org/developer/))
-  * `phl.pwd_parcels` ([OpenDataPhilly](https://opendataphilly.org/dataset/pwd-stormwater-billing-parcels))
-  * `census.block_groups_2020` ([Census TIGER FTP](https://www2.census.gov/geo/tiger/TIGER2020/BG/) -- Each state has it's own file; Use file number `42` for PA)
-    * Load into the database would use parameters like these:
-      ```bash
-      ogr2ogr \
-        -f "PostgreSQL" \
-        PG:"host=localhost user=postgres dbname=musa_509_spring2023 port=5434 password=postgres" \
-        -nln "census.block_groups_2020" \
-        -nlt MULTIPOLYGON \
-        -overwrite \
-        -lco GEOMETRY_NAME=geog \
-        -lco GEOM_TYPE=geography \
-        "./data/tl_2020_42_bg.shp"
-      ```
-  * `census.population_2020` ([Census Explorer](https://data.census.gov/table?t=Populations+and+People&g=0500000US42101$1500000&y=2020&d=DEC+Redistricting+Data+(PL+94-171)&tid=DECENNIALPL2020.P1))  
-    Fields:
-      * `geoid TEXT`
-      * `geoname TEXT`
-      * `total_pop INTEGER`
+There are several datasets that are prescribed for you to use in this part. Your datasets tables be named:
+*   `septa.bus_stops` ([SEPTA GTFS](https://github.com/septadev/GTFS/releases) -- Use the file for February 26, 2023)
+    *   In the tests, the initial table will have the following structure:
+        ```sql
+        CREATE TABLE septa.bus_stops (
+            stop_id TEXT,
+            stop_name TEXT,
+            stop_lat DOUBLE PRECISION,
+            stop_lon DOUBLE PRECISION,
+            location_type TEXT,
+            parent_station TEXT,
+            zone_id TEXT,
+            wheelchair_boarding INTEGER
+        );
+        ```
+*   `septa.bus_routes` ([SEPTA GTFS](https://github.com/septadev/GTFS/releases))
+    *   In the tests, the initial table will have the following structure:
+        ```sql
+        CREATE TABLE septa.bus_routes (
+            route_id TEXT,
+            route_short_name TEXT,
+            route_long_name TEXT,
+            route_type TEXT,
+            route_color TEXT,
+            route_text_color TEXT,
+            route_url TEXT
+        );
+        ```
+*   `septa.bus_trips` ([SEPTA GTFS](https://github.com/septadev/GTFS/releases))
+    *  In the tests, the initial table will have the following structure:
+        ```sql
+        CREATE TABLE septa.bus_trips (
+            route_id TEXT,
+            service_id TEXT,
+            trip_id TEXT,
+            trip_headsign TEXT,
+            block_id TEXT,
+            direction_id TEXT,
+            shape_id TEXT
+        );
+        ```
+*   `septa.bus_shapes` ([SEPTA GTFS](https://github.com/septadev/GTFS/releases))
+    *   In the tests, the initial table will have the following structure:
+        ```sql
+        CREATE TABLE septa.bus_shapes (
+            shape_id TEXT,
+            shape_pt_lat DOUBLE PRECISION,
+            shape_pt_lon DOUBLE PRECISION,
+            shape_pt_sequence INTEGER
+        );
+        ```
+*   `septa.rail_stops` ([SEPTA GTFS](https://github.com/septadev/GTFS/releases))
+    *   In the tests, the initial table will have the following structure:
+        ```sql
+        CREATE TABLE septa.rail_stops (
+            stop_id TEXT,
+            stop_name TEXT,
+            stop_desc TEXT,
+            stop_lat DOUBLE PRECISION,
+            stop_lon DOUBLE PRECISION,
+            zone_id TEXT,
+            stop_url TEXT
+        );
+        ```
+*   `phl.pwd_parcels` ([OpenDataPhilly](https://opendataphilly.org/dataset/pwd-stormwater-billing-parcels))
+    *   In the tests, this data will be loaded in with a geography column named `geog`, and all field names will be lowercased. If you use `ogr2ogr` to load the file, I recommend you use the following options:
+        ```bash
+        ogr2ogr \
+            -f "PostgreSQL" \
+            PG:"host=localhost port=$PGPORT dbname=$PGNAME user=$PGUSER password=$PGPASS" \
+            -nln phl.pwd_parcels \
+            -nlt MULTIPOLYGON \
+            -t_srs EPSG:4326 \
+            -lco GEOMETRY_NAME=geog \
+            -lco GEOM_TYPE=GEOGRAPHY \
+            -overwrite \
+            "${DATA_DIR}/phl_pwd_parcels/PWD_PARCELS.shp"
+        ```
+        _(remember to replace the variables with the appropriate values, and replace the backslashes (`\`) with backticks (`` ` ``) if you're using PowerShell)_
+*   `azavea.neighborhoods` ([Azavea's GitHub](https://github.com/azavea/geo-data/tree/master/Neighborhoods_Philadelphia))
+    * In the tests, this data will be loaded in with a geography column named `geog`, and all field names will be lowercased. If you use `ogr2ogr` to load the file, I recommend you use the following options:
+        ```bash
+        ogr2ogr \
+            -f "PostgreSQL" \
+            PG:"host=localhost port=$PGPORT dbname=$PGNAME user=$PGUSER password=$PGPASS" \
+            -nln azavea.neighborhoods \
+            -nlt MULTIPOLYGON \
+            -lco GEOMETRY_NAME=geog \
+            -lco GEOM_TYPE=GEOGRAPHY \
+            -overwrite \
+            "${DATA_DIR}/Neighborhoods_Philadelphia.geojson"
+        ```
+        _(remember to replace the variables with the appropriate values, and replace the backslashes (`\`) with backticks (`` ` ``) if you're using PowerShell)_
+*   `census.blockgroups_2020` ([Census TIGER FTP](https://www2.census.gov/geo/tiger/TIGER2020/BG/) -- Each state has it's own file; Use file number `42` for PA)
+    *   In the tests, this data will be loaded in with a geography column named `geog`, and all field names will be lowercased. If you use `ogr2ogr` to load the file, I recommend you use the following options:
+        ```bash
+        ogr2ogr \
+            -f "PostgreSQL" \
+            PG:"host=localhost port=$PGPORT dbname=$PGNAME user=$PGUSER password=$PGPASS" \
+            -nln census.blockgroups_2020 \
+            -nlt MULTIPOLYGON \
+            -lco GEOMETRY_NAME=geog \
+            -lco GEOM_TYPE=GEOGRAPHY \
+            -overwrite \
+            "$DATADIR/census_blockgroups_2020/tl_2020_42_bg.shp"
+        ```
+        _(remember to replace the variables with the appropriate values, and replace the backslashes (`\`) with backticks (`` ` ``) if you're using PowerShell)_
+  *   `census.population_2020` ([Census Explorer](https://data.census.gov/table?t=Populations+and+People&g=0500000US42101$1500000&y=2020&d=DEC+Redistricting+Data+(PL+94-171)&tid=DECENNIALPL2020.P1))  
+      * In the tests, the initial table will have the following structure:
+        ```sql
+        CREATE TABLE census.population_2020 (
+            geoid TEXT,
+            geoname TEXT,
+            total INTEGER
+        );
+        ```
+      * Note that the file from the Census Explorer will have more fields than those three. You may have to do some data preprocessing to get the data into the correct format.
 
-
-
-**Note, when tests aren't passing, I do take logic for solving problems into account when grading. When in doubt, write your thinking for solving the problem even if you aren't able to get a full response.**
+**Note, when tests aren't passing, I do take logic for solving problems into account _for partial credit_ when grading. When in doubt, write your thinking for solving the problem even if you aren't able to get a full response.**
 
 ## Questions
 
-1.  Which bus stop has the largest population within 800 meters? As a rough estimation, consider any block group that intersects the buffer as being part of the 800 meter buffer.
+1.  Which **eight** bus stop have the largest population within 800 meters? As a rough estimation, consider any block group that intersects the buffer as being part of the 800 meter buffer.
 
-2.  Which bus stop has the smallest population within 800 meters _inside of Philadelphia_ (Philadelphia county block groups have a geoid prefix of `42101`?
+2.  Which **eight** bus stops have the smallest population above 500 people _inside of Philadelphia_ within 800 meters of the stop (Philadelphia county block groups have a geoid prefix of `42101` -- that's `42` for the state of PA, and `101` for Philadelphia county)?
 
     **The queries to #1 & #2 should generate results with a single row, with the following structure:**
 
@@ -64,15 +169,21 @@ There are several datasets that are prescribed for you to use in this part. Your
     )
     ```
 
-4.  Using the _shapes.txt_ file from GTFS bus feed, find the **two** routes with the longest trips. In the final query, give the `trip_headsign` that corresponds to the `shape_id` of this route and the length of the trip.
+4.  Using the `bus_shapes`, `bus_routes`, and `bus_trips` tables from GTFS bus feed, find the **two** routes with the longest trips.
 
     _HINT: The `ST_MakeLine` function is useful here. You can see an example of how you could use it at [this MobilityData walkthrough](https://docs.mobilitydb.com/MobilityDB-workshop/master/ch04.html#:~:text=INSERT%20INTO%20shape_geoms) on using GTFS data. If you find other good examples, please share them in Slack._
+
+    _HINT: Use the query planner (`EXPLAIN`) to see if there might be opportunities to speed up your query with indexes. For reference, I got this query to run in about 15 seconds._
+
+    _HINT: The `row_number` window function could also be useful here. You can read more about window functions [in the PostgreSQL documentation](https://www.postgresql.org/docs/9.1/tutorial-window.html). That documentation page uses the `rank` function, which is very similar to `row_number`._
 
     **Structure:**
     ```sql
     (
+        route_short_name text,  -- The short name of the route
         trip_headsign text,  -- Headsign of the trip
-        trip_length double precision  -- Length of the trip in meters
+        shape_geog geography,  -- The shape of the trip
+        shape_length double precision  -- Length of the trip in meters
     )
     ```
 
