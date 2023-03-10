@@ -58,7 +58,7 @@ create table septa.rail_stops (
 );
 
 drop table if exists census.population_2020;
-CREATE TABLE census.population_2020 (
+create table census.population_2020 (
     geoid TEXT,
     geoname TEXT,
     total INTEGER
