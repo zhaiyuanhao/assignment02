@@ -1,7 +1,7 @@
 import { expect, describe, it, jest } from '@jest/globals';
 import './jest_extensions';
 
-jest.setTimeout(500000);
+jest.setTimeout(120000);
 
 
 // // test the complete result
