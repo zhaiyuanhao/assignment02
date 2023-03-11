@@ -4,18 +4,6 @@ import './jest_extensions';
 jest.setTimeout(120000);
 
 
-// // test the complete result
-// describe('Query 03', () => {
-//   it('should return the correct results', async () => {
-//     await expect('../query03.sql')
-//       .toReturnRecords(['expected_results/query03.csv']);
-//   });
-// });
-
-
-
-
-
 describe('Query 03', () => {
   it('should return the correct results', async () => {
     await expect('../query03.sql')
