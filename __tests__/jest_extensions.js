@@ -23,17 +23,6 @@ async function toReturnRecords(queryFN, resultsFNs, options = {}) {
     sql = await fs.readFile(fullQueryFN, { encoding: 'utf8', flag: 'r' });
     sql = sql.trim().replace(/;$/g, '');  // Remove trailing semicolon
     if (options.orderBy) {
-      // get rid of the order by line for query03
-      // let lines = sql.split('\n');
-      // let lineNumberOfOrderby;
-      // let len = lines.length;
-      // for(let i = 0; i < len; i++) {
-      //   if (lines[i].toLowerCase().includes('order by')) {
-      //     lineNumberOfOrderby = i;
-      //   }
-      // }
-      // let sql_new = sql.replace(lines[lineNumberOfOrderby], '');
-      // sql = sql_new;
       const wrappedSql = `SELECT * FROM (${sql}) AS query`;
       sql = wrappedSql;
       sql += ` ORDER BY ${options.orderBy}`;
