@@ -9,7 +9,7 @@ describe('Query 03', () => {
     await expect('../query03.sql')
       .toReturnRecords(
       	['expected_results/query03_short.csv'],
-      	{ limit: 5 },
+      	{ orderBy: 'distance desc, stop_name desc, stop_geog desc, parcel_address desc, parcel_geog desc', limit: 5 },
       	);
   });
 
@@ -21,6 +21,7 @@ describe('Query 03', () => {
   	  );
   });
 });
+
 
 
 

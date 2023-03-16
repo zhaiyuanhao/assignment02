@@ -26,10 +26,11 @@ async function toReturnRecords(queryFN, resultsFNs, options = {}) {
       const wrappedSql = `SELECT * FROM (${sql}) AS query`;
       sql = wrappedSql;
       sql += ` ORDER BY ${options.orderBy}`;
-   }
-  if (options.limit) {
-    sql += ` LIMIT ${options.limit}`;
-  }
+    }
+    if (options.limit) {
+      sql += ` LIMIT ${options.limit}`;
+    }
+    // console.log(sql);
   } catch (err) {
     return {
       pass: false,
