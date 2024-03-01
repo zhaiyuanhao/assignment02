@@ -87,16 +87,16 @@ There are several datasets that are prescribed for you to use in this part. Belo
 *   `phl.pwd_parcels` ([OpenDataPhilly](https://opendataphilly.org/dataset/pwd-stormwater-billing-parcels))
     *   In the tests, this data will be loaded in with a geography column named `geog`, and all field names will be lowercased. If you use `ogr2ogr` to load the file, I recommend you use the following options:
         ```bash
-        ogr2ogr \
-            -f "PostgreSQL" \
-            PG:"host=localhost port=$PGPORT dbname=$PGNAME user=$PGUSER password=$PGPASS" \
-            -nln phl.pwd_parcels \
-            -nlt MULTIPOLYGON \
-            -t_srs EPSG:4326 \
-            -lco GEOMETRY_NAME=geog \
-            -lco GEOM_TYPE=GEOGRAPHY \
-            -overwrite \
-            "${DATA_DIR}/phl_pwd_parcels/PWD_PARCELS.shp"
+        ogr2ogr `
+            -f "PostgreSQL" `
+            PG:"host=localhost port=5432 dbname=postgres user=postgres password=ZYHtt-0325" `
+            -nln phl.pwd_parcels `
+            -nlt MULTIPOLYGON `
+            -t_srs EPSG:4326 `
+            -lco GEOMETRY_NAME=geog `
+            -lco GEOM_TYPE=GEOGRAPHY `
+            -overwrite `
+            "C:/Users/zhaiy/Desktop/5090/PWD_PARCELS/PWD_PARCELS.shp"
         ```
         _(remember to replace the variables with the appropriate values, and replace the backslashes (`\`) with backticks (`` ` ``) if you're using PowerShell)_
 
@@ -104,30 +104,30 @@ There are several datasets that are prescribed for you to use in this part. Belo
 *   `azavea.neighborhoods` ([Azavea's GitHub](https://github.com/azavea/geo-data/tree/master/Neighborhoods_Philadelphia))
     * In the tests, this data will be loaded in with a geography column named `geog`, and all field names will be lowercased. If you use `ogr2ogr` to load the file, I recommend you use the following options:
         ```bash
-        ogr2ogr \
-            -f "PostgreSQL" \
-            PG:"host=localhost port=$PGPORT dbname=$PGNAME user=$PGUSER password=$PGPASS" \
-            -nln azavea.neighborhoods \
-            -nlt MULTIPOLYGON \
-            -lco GEOMETRY_NAME=geog \
-            -lco GEOM_TYPE=GEOGRAPHY \
-            -overwrite \
-            "${DATA_DIR}/Neighborhoods_Philadelphia.geojson"
+        ogr2ogr `
+            -f "PostgreSQL" `
+            PG:"host=localhost port=5432 dbname=postgres user=postgres password=ZYHtt-0325" `
+            -nln azavea.neighborhoods `
+            -nlt MULTIPOLYGON `
+            -lco GEOMETRY_NAME=geog `
+            -lco GEOM_TYPE=GEOGRAPHY `
+            -overwrite `
+            "C:/Users/zhaiy/Desktop/5090/Neighborhoods_Philadelphia.geojson"
         ```
         _(remember to replace the variables with the appropriate values, and replace the backslashes (`\`) with backticks (`` ` ``) if you're using PowerShell)_
 *   `census.blockgroups_2020` ([Census TIGER FTP](https://www2.census.gov/geo/tiger/TIGER2020/BG/) -- Each state has it's own file; Use file number `42` for PA)
     *   In the tests, this data will be loaded in with a geography column named `geog`, and all field names will be lowercased. If you use `ogr2ogr` to load the file, I recommend you use the following options:
         ```bash
-        ogr2ogr \
-            -f "PostgreSQL" \
-            PG:"host=localhost port=$PGPORT dbname=$PGNAME user=$PGUSER password=$PGPASS" \
-            -nln census.blockgroups_2020 \
-            -nlt MULTIPOLYGON \
-            -t_srs EPSG:4326 \
-            -lco GEOMETRY_NAME=geog \
-            -lco GEOM_TYPE=GEOGRAPHY \
-            -overwrite \
-            "$DATADIR/census_blockgroups_2020/tl_2020_42_bg.shp"
+        ogr2ogr `
+            -f "PostgreSQL" `
+            PG:"host=localhost port=5432 dbname=postgres user=postgres password=ZYHtt-0325" `
+            -nln census.blockgroups_2020 `
+            -nlt MULTIPOLYGON `
+            -t_srs EPSG:4326 `
+            -lco GEOMETRY_NAME=geog `
+            -lco GEOM_TYPE=GEOGRAPHY `
+            -overwrite `
+            "C:/Users/zhaiy/Desktop/5090/tl_2020_42_bg/tl_2020_42_bg.shp"
         ```
         _(remember to replace the variables with the appropriate values, and replace the backslashes (`\`) with backticks (`` ` ``) if you're using PowerShell)_
 
@@ -205,10 +205,32 @@ There are several datasets that are prescribed for you to use in this part. Belo
     Discuss your accessibility metric and how you arrived at it below:
 
     **Description:**
+    To rate the neighborhoods by their bus stop accessibility for wheelchairs, i want to calculate the percentage of bus stops have wheelchairs boarding possibility, and compare this percentage with city average level.
+
+    **Structure:**
+    ```sql
+    (
+        neighbor_name text,
+        total_bus_stops integer,
+        bus_stops_wheelchairs_friendly integer,
+        percentage_wheelchairs double precision,
+        neighbor_geog geography
+    )
+
+    ```
+    The Result:
+    As result shows, for 158 neighborhoods, 115 of them have 100% of wheelchairs boarding accessibility, and other 38 neighborhoods are over 50%, only 5 neighborhoods are under 50%, and Bartram Village have 0 wheelchairs boarding accessibility bus stop.
 
 6.  What are the _top five_ neighborhoods according to your accessibility metric?
 
+The top five neighborhoods are:
+
 7.  What are the _bottom five_ neighborhoods according to your accessibility metric?
+"Bartram Village"
+"Mechanicsville"
+"Woodland Terrace"
+"Southwest Schuylkill"
+"Paschall"
 
     **Both #6 and #7 should have the structure:**
     ```sql
@@ -230,6 +252,7 @@ There are several datasets that are prescribed for you to use in this part. Belo
     ```
 
     **Discussion:**
+    i use the owner1 of pwd_parcels to find the building under the university of pennslyvania.
 
 9. With a query involving PWD parcels and census block groups, find the `geo_id` of the block group that contains Meyerson Hall. `ST_MakePoint()` and functions like that are not allowed.
 
@@ -239,6 +262,7 @@ There are several datasets that are prescribed for you to use in this part. Belo
         geo_id text
     )
     ```
+I just can't find Meyerson Hall in PWD parcels.
 
 10. You're tasked with giving more contextual information to rail stops to fill the `stop_desc` field in a GTFS feed. Using any of the data sets above, PostGIS functions (e.g., `ST_Distance`, `ST_Azimuth`, etc.), and PostgreSQL string functions, build a description (alias as `stop_desc`) for each stop. Feel free to supplement with other datasets (must provide link to data used so it's reproducible), and other methods of describing the relationships. SQL's `CASE` statements may be helpful for some operations.
 
